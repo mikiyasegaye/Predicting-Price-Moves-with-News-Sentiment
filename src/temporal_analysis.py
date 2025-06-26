@@ -6,71 +6,78 @@ import numpy as np
 from typing import Dict, Any
 from datetime import datetime, timedelta
 
-def parse_dates(df: pd.DataFrame, date_column: str = 'date') -> pd.DataFrame:
-    """
-    Parse dates in the dataframe and add temporal features.
+class TemporalAnalyzer:
+    def __init__(self):
+        """
+        Initialize TemporalAnalyzer.
+        """
+        pass
 
-    Args:
-        df: Input dataframe
-        date_column: Name of the date column
+    def parse_dates(self, df: pd.DataFrame, date_column: str = 'date') -> pd.DataFrame:
+        """
+        Parse dates in the dataframe and add temporal features.
 
-    Returns:
-        DataFrame with additional temporal features
-    """
-    # Create a copy to avoid modifying the original
-    df = df.copy()
+        Args:
+            df: Input dataframe
+            date_column: Name of the date column
 
-    # Parse dates
-    df[date_column] = pd.to_datetime(df[date_column])
+        Returns:
+            DataFrame with additional temporal features
+        """
+        # Create a copy to avoid modifying the original
+        df = df.copy()
 
-    # Extract temporal features
-    df['year'] = df[date_column].dt.year
-    df['month'] = df[date_column].dt.month
-    df['day'] = df[date_column].dt.day
-    df['hour'] = df[date_column].dt.hour
-    df['day_of_week'] = df[date_column].dt.day_name()
-    df['is_weekend'] = df[date_column].dt.day_name().isin(['Saturday', 'Sunday'])
+        # Parse dates
+        df[date_column] = pd.to_datetime(df[date_column])
 
-    return df
+        # Extract temporal features
+        df['year'] = df[date_column].dt.year
+        df['month'] = df[date_column].dt.month
+        df['day'] = df[date_column].dt.day
+        df['hour'] = df[date_column].dt.hour
+        df['day_of_week'] = df[date_column].dt.day_name()
+        df['is_weekend'] = df[date_column].dt.day_name().isin(['Saturday', 'Sunday'])
 
-def analyze_temporal_patterns(df: pd.DataFrame, date_column: str = 'date') -> Dict[str, Any]:
-    """
-    Analyze temporal patterns in news publications.
+        return df
 
-    Args:
-        df: Input dataframe with datetime index
-        date_column: Name of the date column
+    def analyze_temporal_patterns(self, df: pd.DataFrame, date_column: str = 'date') -> Dict[str, Any]:
+        """
+        Analyze temporal patterns in news publications.
 
-    Returns:
-        Dictionary containing temporal analysis results
-    """
-    # Ensure dates are parsed
-    if not pd.api.types.is_datetime64_any_dtype(df[date_column]):
-        df = parse_dates(df, date_column)
+        Args:
+            df: Input dataframe with datetime index
+            date_column: Name of the date column
 
-    # Daily frequency
-    daily_counts = df.groupby(df[date_column].dt.date).size()
+        Returns:
+            Dictionary containing temporal analysis results
+        """
+        # Ensure dates are parsed
+        if not pd.api.types.is_datetime64_any_dtype(df[date_column]):
+            df = self.parse_dates(df, date_column)
 
-    # Hourly patterns
-    hourly_counts = df.groupby(df[date_column].dt.hour).size()
+        # Daily frequency
+        daily_counts = df.groupby(df[date_column].dt.date).size()
 
-    # Day of week patterns
-    dow_counts = df.groupby('day_of_week').size()
+        # Hourly patterns
+        hourly_counts = df.groupby(df[date_column].dt.hour).size()
 
-    # Monthly patterns
-    monthly_counts = df.groupby([df[date_column].dt.year, df[date_column].dt.month]).size()
+        # Day of week patterns
+        dow_counts = df.groupby('day_of_week').size()
 
-    # Calculate statistics
-    stats = {
-        'total_days': len(daily_counts),
-        'avg_daily_news': daily_counts.mean(),
-        'max_daily_news': daily_counts.max(),
-        'peak_hour': hourly_counts.idxmax(),
-        'weekend_ratio': df['is_weekend'].mean(),
-        'daily_counts': daily_counts,
-        'hourly_counts': hourly_counts,
-        'dow_counts': dow_counts,
-        'monthly_counts': monthly_counts
-    }
+        # Monthly patterns
+        monthly_counts = df.groupby([df[date_column].dt.year, df[date_column].dt.month]).size()
 
-    return stats
+        # Calculate statistics
+        stats = {
+            'total_days': len(daily_counts),
+            'avg_daily_news': daily_counts.mean(),
+            'max_daily_news': daily_counts.max(),
+            'peak_hour': hourly_counts.idxmax(),
+            'weekend_ratio': df['is_weekend'].mean(),
+            'daily_counts': daily_counts,
+            'hourly_counts': hourly_counts,
+            'dow_counts': dow_counts,
+            'monthly_counts': monthly_counts
+        }
+
+        return stats

@@ -5,66 +5,73 @@ import pandas as pd
 from typing import Dict, List, Any
 from collections import Counter
 
-def analyze_publishers(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Analyze news publisher patterns.
+class MarketAnalyzer:
+    def __init__(self):
+        """
+        Initialize MarketAnalyzer.
+        """
+        pass
 
-    Args:
-        df: Input dataframe with publisher information
+    def analyze_publishers(self, df: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Analyze news publisher patterns.
 
-    Returns:
-        Dictionary containing publisher analysis results
-    """
-    # Publisher frequency
-    publisher_counts = df['publisher'].value_counts()
+        Args:
+            df: Input dataframe with publisher information
 
-    # Articles per day by publisher
-    df['date'] = pd.to_datetime(df['date'])
-    articles_per_day = df.groupby(['publisher', df['date'].dt.date]).size()
-    avg_articles_per_day = articles_per_day.groupby('publisher').mean()
+        Returns:
+            Dictionary containing publisher analysis results
+        """
+        # Publisher frequency
+        publisher_counts = df['publisher'].value_counts()
 
-    # Most covered stocks by publisher
-    publisher_stocks = df.groupby('publisher')['stock'].agg(list)
-    publisher_top_stocks = {
-        publisher: Counter(stocks).most_common(5)
-        for publisher, stocks in publisher_stocks.items()
-    }
+        # Articles per day by publisher
+        df['date'] = pd.to_datetime(df['date'])
+        articles_per_day = df.groupby(['publisher', df['date'].dt.date]).size()
+        avg_articles_per_day = articles_per_day.groupby('publisher').mean()
 
-    return {
-        'total_publishers': len(publisher_counts),
-        'publisher_counts': publisher_counts,
-        'avg_articles_per_day': avg_articles_per_day,
-        'publisher_top_stocks': publisher_top_stocks
-    }
+        # Most covered stocks by publisher
+        publisher_stocks = df.groupby('publisher')['stock'].agg(list)
+        publisher_top_stocks = {
+            publisher: Counter(stocks).most_common(5)
+            for publisher, stocks in publisher_stocks.items()
+        }
 
-def analyze_stocks(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Analyze stock coverage patterns.
+        return {
+            'total_publishers': len(publisher_counts),
+            'publisher_counts': publisher_counts,
+            'avg_articles_per_day': avg_articles_per_day,
+            'publisher_top_stocks': publisher_top_stocks
+        }
 
-    Args:
-        df: Input dataframe with stock information
+    def analyze_stocks(self, df: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Analyze stock coverage patterns.
 
-    Returns:
-        Dictionary containing stock analysis results
-    """
-    # Stock frequency
-    stock_counts = df['stock'].value_counts()
+        Args:
+            df: Input dataframe with stock information
 
-    # News volume over time
-    df['date'] = pd.to_datetime(df['date'])
-    daily_volume = df.groupby(['stock', df['date'].dt.date]).size()
-    avg_daily_volume = daily_volume.groupby('stock').mean()
+        Returns:
+            Dictionary containing stock analysis results
+        """
+        # Stock frequency
+        stock_counts = df['stock'].value_counts()
 
-    # Publisher diversity
-    stock_publishers = df.groupby('stock')['publisher'].agg(list)
-    publisher_diversity = {
-        stock: len(set(publishers))
-        for stock, publishers in stock_publishers.items()
-    }
+        # News volume over time
+        df['date'] = pd.to_datetime(df['date'])
+        daily_volume = df.groupby(['stock', df['date'].dt.date]).size()
+        avg_daily_volume = daily_volume.groupby('stock').mean()
 
-    return {
-        'total_stocks': len(stock_counts),
-        'stock_counts': stock_counts,
-        'avg_daily_volume': avg_daily_volume,
-        'publisher_diversity': publisher_diversity
-    }
+        # Publisher diversity
+        stock_publishers = df.groupby('stock')['publisher'].agg(list)
+        publisher_diversity = {
+            stock: len(set(publishers))
+            for stock, publishers in stock_publishers.items()
+        }
+
+        return {
+            'total_stocks': len(stock_counts),
+            'stock_counts': stock_counts,
+            'avg_daily_volume': avg_daily_volume,
+            'publisher_diversity': publisher_diversity
+        }
